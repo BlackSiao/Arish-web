@@ -1,7 +1,7 @@
 ---
 title: shell
 createTime: 2025/09/21 22:31:00
-permalink: /Linux/57cuk2mm/
+permalink: /notes/Linux/27etczvk/
 ---
 # Linux 常用命令与 Shell 脚本基础
 

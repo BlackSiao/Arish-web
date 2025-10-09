@@ -1,7 +1,7 @@
 ---
 title: cheat_shell
 createTime: 2025/09/23 15:47:50
-permalink: /Linux/t6y5xkz0/
+permalink: /notes/Linux/1ss1lgue/
 ---
 # DDI 常用日志查看
 

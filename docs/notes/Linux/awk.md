@@ -1,7 +1,7 @@
 ---
 title: awk
 createTime: 2025/09/22 22:31:58
-permalink: /Linux/7s19dv3s/
+permalink: /notes/Linux/85muhzy2/
 ---
 # AWK
 

@@ -1,6 +1,7 @@
 ---
 title: protocol
 createTime: 2025/09/24 20:30:18
+permalink: /notes/Internet/s1hevuji/
 ---
 # HTTP 与 TCP 的关系详解
 

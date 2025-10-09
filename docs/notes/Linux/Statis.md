@@ -1,7 +1,7 @@
 ---
 title: Statis
 createTime: 2025/09/23 18:11:55
-permalink: /Linux/56lzl487/
+permalink: /notes/Linux/tcdyy8ti/
 ---
 # Linux 运维命令自检清单 ✅
 

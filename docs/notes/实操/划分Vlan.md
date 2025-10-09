@@ -1,7 +1,7 @@
 ---
 title: 划分Vlan
 createTime: 2025/10/02 10:56:23
-permalink: /article/5cbg4nfn/
+permalink: /notes/实操/76q1whm2/
 ---
 
 # 创建VLAN的操作步骤
