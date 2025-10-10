@@ -12,10 +12,10 @@ permalink: /notes/Linux/85muhzy2/
 AWK 的命令格式通常是：
 
 ```bash
-awk '模式 {动作}' 文件名
+awk '匹配条件 {动作}' 文件名
 ```
 
-- **模式（Pattern）**：可选，指定哪些行要处理（如正则匹配或条件判断）。如果省略，所有行都处理。假设awk命令是一条数据库命令，则Pattern的填写就如同SELECT语句。
+- **匹配条件（Pattern）**：可选，指定哪些行要处理（如正则匹配或条件判断）。如果省略，所有行都处理。假设awk命令是一条数据库命令，则Pattern的填写就如同SELECT语句。
 ```Pattern
 面对一个这样的query.log日志
 20-Sep-2025 17:34:52.507 client 127.0.0.2 61096: view default: dns1.monitormyselfisok IN A NOERROR - NS NE NT ND NC L 0 0 0 0.000000 NW NA NA N FD source client NA NTN 82 Response: dns1.monitormyselfisok. 5 IN A 127.0.0.1;

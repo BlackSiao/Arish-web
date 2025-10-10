@@ -123,7 +123,8 @@ done
 - `df -lh` # 查看 文件系统的磁盘空间使用情况
 - `du -sh /文件系统目录/` # 查看对应目录下哪些文件占用空间最多
 - `mkdir -p /insight/packages /insight/versions` # 递归创建多个文件夹
-
+- `netstat -tuln`    # 查看全部被监听的端口
+- `free -h`          # 查看内存的利用情况
 
 ## 6. 网络命令
 - `lurker -c conf -l /etc/license.file` # 查看 license 的全部信息
@@ -134,6 +135,9 @@ done
 - `ipconfig /renew`   # 更新租约
 - `ls -lh`             # 查看对应文件内所有文件大小
 - `curl ifconfig.me`   # 查看本机的公网地址
+- `telent IP地址 端口`  # 连接对应终端的特定端口
+
+  
 
 ### 6.2 Wireshark 技巧
 
