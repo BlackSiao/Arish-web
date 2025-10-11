@@ -5,8 +5,6 @@ permalink: /notes/实操/wznst2i7/
 ---
 # iptables 配置脚本
 
-以下是提供的 iptables 配置脚本转换为 Markdown 格式的版本。每个部分保留了原有的编号、标题和命令结构，使用代码块来突出显示 shell 命令。
-
 ## 1️⃣ 清理旧规则并设置默认策略
 
 ```bash

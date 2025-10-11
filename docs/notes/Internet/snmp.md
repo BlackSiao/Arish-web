@@ -40,5 +40,3 @@ OID 本身是点分隔的数字序列（dotted decimal notation），这是 SNMP
 ### 管理站的查询方式
 管理站（如 Zabbix、Nagios 或 Prometheus）不是使用 API（如 RESTful HTTP）查询的，而是直接用 SNMP 协议（通常 UDP 端口 161）发送 GET/SET 请求到设备代理（snmpd）。SNMP 是轻量级协议，专为网络管理设计：管理站发 PDU（Protocol Data Unit）包查询 OID，代理返回 ASN.1 编码数据
 
-
-### ZDNS的对应配置
