@@ -124,6 +124,7 @@ done
 - `du -sh /文件系统目录/` # 查看对应目录下哪些文件占用空间最多
 - `mkdir -p /insight/packages /insight/versions` # 递归创建多个文件夹
 - `netstat -tuln`    # 查看全部被监听的端口
+- `ss -tuln`         # netstat的上位替代
 - `free -h`          # 查看内存的利用情况
 
 ## 6. 网络命令
