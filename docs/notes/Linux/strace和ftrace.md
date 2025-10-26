@@ -1,10 +1,14 @@
 ---
-title: strace和ftrace
+title: strace   
 createTime: 2025/10/14 11:18:08
 permalink: /notes/Linux/kbejdwvs/
 ---
 
 # strace 和 ftrace
+
+在运维排查中，经常会遇到某个进程无法正常工作的问题。一般处理方式都是去看该进程的运行日志和启动日志，此时研发没有写好这些日志的处理逻辑的话，则无法获得有用的信息。
+
+而strace命令提供了一种新的排查思路，通过使用strace命令，我们得以看到进程此时的全部系统调用的内容和返回结果，以此来判断进程此时的运行情况，进而判断整个程序卡在哪个点上。
 
 ## 工具比较
 
@@ -23,17 +27,15 @@ permalink: /notes/Linux/kbejdwvs/
 
 | 常见误区                  | 原因                          | 正确做法                                      |
 |---------------------------|-------------------------------|-----------------------------------------------|
-| strace 一开全屏跑，看不懂 | 输出太多系统调用              | 用 `-e trace=open,read,write` 过滤            |
+| strace 一开全屏刷日志，看不懂 | 系统调用的次数是非常密集的              | 用 `-e trace=open,read,write` 过滤            |
 | 忘记 root 权限跑 ftrace   | ftrace 需要较高权限           | 使用 `sudo` 或切 root                         |
 | 误以为 ftrace 是命令      | 其实是内核子系统，不是一条命令 | 通过 `/sys/kernel/debug/tracing` 或 `trace-cmd` 使用 |
-| 想用 strace 分析内核问题  | strace 只能看用户态调用       | 内核卡死问题请用 ftrace 或 perf               |
+| 想用 strace 分析内核问题  | strace 只能看用户态调用       | 内核卡死问题需用 ftrace
 
 ## strace 示例
 
-假设现在 `snmpd` 进程无法正常启动，对应的进程号是：100815。
-
-**注意：** 用 `>` 重定向，只会捕获标准输出（stdout），而 strace 默认写到标准错误（stderr）！  
-所以要为了防止大量的系统调用冲昏头脑，需要使用 '2>' 来重定向输出到log里面。
+假设现在 `snmpd` 进程无法正常启动，对应的进程号是：100815。对应的错误日志没有更进一步的信息，此时
+可以通过strace命令来查看该进程此时的系统调用。
 
 ```bash
 strace -tt -e trace=open,read,write -p 100815 2> trace.log
@@ -48,7 +50,14 @@ strace -tt -e trace=open,read,write -p 100815 2> trace.log
 | `-e trace=...`  | 只跟踪指定系统调用，减少噪音              |
 | `2> trace.log`  | 把结果写入日志文件                        |
 
-## 常见故障类型及 strace 特征
+**注意**
+strace命令的系统开销还比较大，尽量不要长时间的跑该命令。
+下列的故障返回里面的: **ENOENT**和 **"EACCES"**是POSIX（Portable Operating System Interface）标准中定义的系统错误码（errno 值），常用于 Unix-like 系统（如 Linux、macOS）中的文件操作系统调用。
+
+当遇到不清楚的错误码时，可以查看POSIX的官网对应的说明: https://docs.particle.io/reference/device-os/api/debugging/posix-errors/
+
+
+## 常见故障类型及 strace 命令定位
 
 | 故障类型              | 在 strace 中会看到的特征系统调用                                                                 |
 |-----------------------|--------------------------------------------------------------------------------------------------|
@@ -61,36 +70,11 @@ strace -tt -e trace=open,read,write -p 100815 2> trace.log
 | 🧬 库文件缺失 (动态库) | `open("/lib/...", O_RDONLY) = -1 ENOENT`                                                         |
 | 🧵 多线程死锁         | 大量 `futex(...)` 或 `nanosleep(...)` 重复                                                       |
 
-### 实际案例解读（片段示例）
+# ps aux 和 ss -lntp
 
-1. **配置文件问题** (snmpd 常见故障)  
-   ```
-   open("/etc/snmp/snmpd.conf", O_RDONLY) = -1 ENOENT (No such file or directory)
-   ```  
-   🔎 **意味着**：配置文件路径错了，或文件不存在。
 
-2. **权限不足**  
-   ```
-   open("/var/lib/snmp/snmpd.conf", O_RDONLY) = -1 EACCES (Permission denied)
-   ```  
-   🔎 **意味着**：程序无法读取关键文件，可能需要 `chown` 或调整 `/var/lib/snmp/*` 权限。
 
-3. **程序卡住** (死循环或等待)  
-   ```
-   read(4,  <unfinished ...>
-   futex(0x7f1234abcd, FUTEX_WAIT, 0, NULL) = 0
-   ```  
-   🔎 **意味着**：程序在等待某资源/锁，可能内部卡死。
 
-4. **端口冲突** (如 SNMP 使用 UDP 161)  
-   ```
-   bind(3, {sa_family=AF_INET, sin_port=htons(161)}, ...) = -1 EADDRINUSE (Address already in use)
-   ```  
-   🔎 **意味着**：端口被占用，无法启动服务。
 
-5. **网络或 DNS 延迟**  
-   ```
-   connect(5, {AF_INET, ...}, ...)   # 一直阻塞
-   getaddrinfo("example.com", ...)   # 无返回
-   ```  
-   🔎 **意味着**：程序尝试网络访问但无响应卡住。
+
+
