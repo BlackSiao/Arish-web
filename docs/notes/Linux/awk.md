@@ -1,5 +1,5 @@
 ---
-title: awk
+title: awk命令
 createTime: 2025/09/22 22:31:58
 permalink: /notes/Linux/85muhzy2/
 ---

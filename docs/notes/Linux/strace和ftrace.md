@@ -1,5 +1,5 @@
 ---
-title: strace   
+title: strace(无敌神器),查看进程的系统调用   
 createTime: 2025/10/14 11:18:08
 permalink: /notes/Linux/kbejdwvs/
 ---

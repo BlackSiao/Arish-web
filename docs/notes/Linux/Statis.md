@@ -1,5 +1,5 @@
 ---
-title: Statis
+title: Linux 运维命令自检清单
 createTime: 2025/09/23 18:11:55
 permalink: /notes/Linux/tcdyy8ti/
 ---
@@ -21,7 +21,7 @@ permalink: /notes/Linux/tcdyy8ti/
 - [✔] mv
 - [✔] find /path -name "*.log"
 - [ ] du -sh *
-- [ ] df -h
+- [✔] df -h
 
 ---
 
