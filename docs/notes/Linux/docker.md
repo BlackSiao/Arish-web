@@ -1,0 +1,283 @@
+---
+title: docker
+createTime: 2025/11/05 20:13:44
+permalink: /notes/Linux/k7owunqy/
+---
+
+# Docker 入门指南：工作流、基本命令与核心概念
+
+Docker 是容器化技术的代表，能高效打包、部署和运行应用。本文档从完整工作流入手，介绍镜像（Image）、容器（Container）管理、常用命令，以及端口映射、卷（Volume）和 Dockerfile 等核心概念。
+
+## Docker 工作流概述
+
+![Docker 框架图](../Linux/Picture/docker框架图.png)
+
+运行 `docker run hello-world` 时，Docker 的流程如下：
+
+1. **客户端联系守护进程**：命令行客户端将请求发送给后台 Docker daemon。
+2. **拉取镜像**：daemon 从 Docker Hub 下载 `hello-world` 镜像（架构通常为 amd64，适用于 x86_64 处理器）。
+3. **创建容器**：基于镜像生成容器，运行可执行文件，产生输出（如 "Hello from Docker!"）。
+4. **返回输出**：daemon 将结果流回客户端，显示在终端。
+
+此流程突出 Docker 核心：**镜像** 是静态模板，**容器** 是运行实例。镜像可生成多个容器；客户端与容器通信通过 daemon 实现，外部进程对容器内程序虚拟化。
+
+## 镜像（Image）：容器的模板
+
+镜像将应用及其依赖打包成只读模板，用于生成容器。同一镜像可创建多个容器。
+
+### 常用命令
+- **列出镜像**：
+  ```bash
+  docker image ls
+  ```
+- **删除镜像**：
+  ```bash
+  docker image rm <imageName>
+  ```
+
+## 运行 Hello-World：验证安装
+
+`hello-world` 是官方示例镜像，用于快速测试 Docker。
+
+1. **拉取镜像**：
+   ```bash
+   docker image pull hello-world
+   ```
+   - `library/` 组名可省略。
+
+2. **验证**：
+   ```bash
+   docker image ls
+   ```
+
+3. **运行**：
+   ```bash
+   docker container run hello-world
+   ```
+   - 若本地无镜像，会自动拉取。
+   - 容器运行后自动终止，输出示例：
+     ```
+     Hello from Docker!
+     This message shows that your installation appears to be working correctly.
+     ...
+     ```
+   - 对于持续运行的服务（如 Web 服务器），需手动管理（见下文）。
+
+## 容器（Container）：运行实例
+
+容器是镜像的可运行副本：
+- 生成后，与镜像并存。
+- 停止容器仅暂停运行，数据保留；需手动删除释放空间。
+
+### 常用命令
+- **列出运行容器**：
+  ```bash
+  docker container ls
+  # 或旧版简写
+  docker ps
+  ```
+  - `docker ps` 源于 Linux `ps` 命令，现保留兼容。
+
+- **列出所有容器**：
+  ```bash
+  docker container ls -a
+  # 或
+  docker ps -a
+  ```
+
+- **删除容器**：
+  ```bash
+  docker container rm <containerID>
+  ```
+  - 停止后删除释放名称和空间。
+
+### 容器内部路径与隔离
+
+容器文件系统与主机隔离：
+- 示例：在主机查看进程可见 nginx，但 `/etc/nginx/` 无配置文件（实际在容器内）。
+- Nginx 父进程通常为 `containerd-shim`，由 systemd 管理。
+
+![Nginx 容器进程](../Linux/Picture/nginx容器.png)
+
+#### 查看容器内部
+1. **进入容器**：
+   ```bash
+   docker exec -it <containerName> bash
+   ```
+   - `-i`：交互模式；`-t`：伪终端。
+   - 若无 `bash`，用 `/bin/sh`。
+
+2. **执行命令**：
+   ```bash
+   ls /usr/share/nginx/html
+   ```
+
+![容器内部路径](../Linux/Picture/容器内.png)
+
+### 容器生命周期命令
+- **启动停止容器**：
+  ```bash
+  docker container start <containerID>
+  docker container stop <containerID>  # 发送 SIGTERM，优雅关闭
+  docker container kill <containerID>  # 发送 SIGKILL，强制终止
+  ```
+  - `run` 创建新容器；`start` 复用现有。
+
+- **查看日志**：
+  ```bash
+  docker container logs <containerID>
+  ```
+  - 用于调试崩溃容器。
+
+## Dockerfile：自定义镜像构建
+
+Dockerfile 是文本文件，描述从基础镜像构建自定义镜像。
+
+示例（自定义 Nginx）：
+```dockerfile
+FROM nginx:latest
+COPY . /usr/share/nginx/html
+EXPOSE 80
+```
+
+构建与运行：
+```bash
+docker build -t my-nginx .
+docker container run -p 80:80 my-nginx
+```
+
+## 端口映射（Port Mapping）
+
+容器端口与主机隔离。**暴露端口**（Expose）指通过映射让容器服务（如 nginx:8080）可被主机/外部访问。
+
+### 暴露概念对比
+
+| 术语                  | 含义                                      | 外部访问 |
+|-----------------------|-------------------------------------------|----------|
+| EXPOSE（Dockerfile） | 声明服务端口（提示用）                    | ❌      |
+| -p（run 参数）       | 映射容器端口到主机端口                    | ✅      |
+| 容器内监听端口       | 仅容器内部访问                            | ✅      |
+
+### 示例：Nginx 部署
+
+假设 nginx.conf：
+```nginx
+listen 8080;
+```
+
+运行：
+```bash
+docker run -d --name mynginx -p 8080:8080 nginx
+```
+
+- **格式**：`-p <主机端口>:<容器端口>`
+- **效果**：
+  - 容器内：nginx 监听 8080。
+  - 主机：`http://localhost:8080` 访问。
+  - 外部：若防火墙允许，访问主机 8080 转发至容器。
+
+| 格式                  | 含义                          |
+|-----------------------|-------------------------------|
+| 主机端口:容器端口    | 主机 8080 → 容器 8080        |
+
+### 查看映射
+- **docker ps**：
+  ```bash
+  docker ps
+  ```
+  示例：
+  ```
+  CONTAINER ID   IMAGE   COMMAND   PORTS               NAMES
+  f3b1a6f8d2ab   nginx   ...       0.0.0.0:8080->8080/tcp   mynginx
+  ```
+
+- **docker port**：
+  ```bash
+  docker port mynginx
+  ```
+  输出：`8080/tcp -> 0.0.0.0:8080`
+
+- **主机工具**：
+  ```bash
+  ss -tnlp | grep 8080
+  # 或
+  netstat -tnlp | grep 8080
+  ```
+  可见 `docker-proxy` 或 `containerd-shim` 监听。
+
+### 无映射后果
+```bash
+docker run -d nginx
+```
+- 容器内 nginx 监听 8080，但主机无法访问。
+- 测试：`docker exec -it nginx curl localhost:8080`
+
+### 小结
+| 概念          | 作用                    | 外部访问 |
+|---------------|-------------------------|----------|
+| EXPOSE 8080  | Dockerfile 声明提示    | ❌      |
+| -p 8080:8080 | 实际主机-容器映射      | ✅      |
+| docker ps    | 查看映射关系            | ✅      |
+
+**总结**：容器端口内部化；`-p` 映射至主机，实现外部访问。
+
+### 端口映射自动化
+映射需显式指定，否则仅内部访问。
+
+示例：
+```bash
+docker run -d -p 8080:80 nginx
+```
+- 主机 8080 → 容器 80。
+
+#### 自动化方式
+1. **Dockerfile + -P**：
+   ```dockerfile
+   FROM nginx
+   EXPOSE 80 443
+   ```
+   ```bash
+   docker run -P <image>
+   ```
+   - 自动分配随机主机端口（如 49153→80）。
+
+2. **docker-compose.yml**（推荐企业部署）：
+   ```yaml
+   services:
+     nginx:
+       image: nginx
+       ports:
+         - "8080:80"
+         - "443:443"
+   ```
+   ```bash
+   docker compose up -d
+   ```
+   - 自动化端口、卷、环境变量。
+
+## 卷（Volume）：数据持久化
+
+容器文件系统临时：删除容器丢失数据。**卷** 如外置硬盘，独立于容器生命周期。
+
+- **创建与挂载**：
+  ```bash
+  docker volume create mydata
+  docker container run -v mydata:/app nginx
+  ```
+- 适用于数据库、日志等持久数据。
+
+## Docker 命令速查表（Cheat Sheet）
+
+| 类别     | 命令示例                          | 描述                  |
+|----------|-----------------------------------|-----------------------|
+| 镜像    | `docker image ls`<br>`docker image rm <name>` | 列出/删除镜像        |
+| 容器    | `docker ps`<br>`docker ps -a`     | 运行/所有容器        |
+| 运行    | `docker run -d -p 80:80 <image>`  | 后台运行，端口映射   |
+| 管理    | `docker start/stop/kill <id>`     | 启动/停止/终止       |
+| 日志/进入| `docker logs <id>`<br>`docker exec -it <id> bash` | 查看日志/进入容器    |
+| 卷      | `docker volume create <name>`     | 创建卷                |
+
+推荐 [Docker 官方 Cheat Sheet](https://docs.docker.com/engine/reference/commandline/cli/)，打印备用。
+
+---
+
