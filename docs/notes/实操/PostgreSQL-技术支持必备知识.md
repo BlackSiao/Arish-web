@@ -98,6 +98,19 @@ SELECT pg_terminate_backend(pid);  -- 杀掉某个卡死进程
 
 ## 四、系统视图 & 系统表（pg_catalog）速查表
 
+### 普通视图和系统视图
+```查看已有的普通视图
+\dv
+```
+普通视图可以理解为："SQL语句的别名"
+```创建视图
+create view my_active_users as
+select * from users where active = true;
+```
+这句话的意思基本上就是把"users"这张表的内容进行了再加工，挑选一些常用的字段组成一张"新表"，方便用户快速调用。
+
+
+
 | 用途               | 推荐命令 / 系统表                     |
 |-------------------|---------------------------------------|
 | 看表结构           | \d 表名 或 pg_class + pg_attribute    |
@@ -139,3 +152,19 @@ SELECT pg_terminate_backend(pid);  -- 杀掉某个卡死进程
 | pg_dumpall    | 备份所有数据库+用户      |
 | pg_restore    | 恢复 pg_dump 出来的文件  |
 | 物理备份      | basebackup / WAL 归档    |
+
+### pg_dump进行备份
+1.将整个数据库备份成一堆SQL语句，比如数据库里面的表怎么CREATE，表里的数据就都是INSERT
+```
+pg_dump dns > dns_full_20251207.sql
+# 恢复的时候就: psql dns < /tmp/dns_full_20251207.sql
+```
+2.备份成压缩的自定义格式（体积小 5~20 倍，恢复用 pg_restore）
+```
+pg_dump -Fc dns > dns_full_20251207.dump
+# 恢复的时候就:pg_restore -d dns /tmp/dns_backup_20251207.dump
+```
+3. 只备份表结构（不带数据，常用于生成建表语句给开发）
+```
+pg_dump -s dns > dns_schema_only.sql
+```
