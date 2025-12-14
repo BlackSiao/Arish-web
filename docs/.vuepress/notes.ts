@@ -45,6 +45,20 @@ const ShicaoNote = defineNoteConfig({  // 新增实操
   sidebar: 'auto'
 })
 
+const MiddlewareNote = defineNoteConfig({
+  text: '中间件',
+  dir: '中间件',
+  link: '/notes/中间件/',
+  sidebar: 'auto'
+})
+
+const HardwareNote = defineNoteConfig({
+  text: '硬件相关内容',
+  dir: '硬件相关内容',
+  link: '/notes/硬件相关内容/',
+  sidebar: 'auto'
+})
+
 /**
  * 导出所有的 note
  * 每一个 note 都应该填入到 `notes.notes` 数组中
@@ -52,5 +66,5 @@ const ShicaoNote = defineNoteConfig({  // 新增实操
 export const zhNotes = defineNotesConfig({
   dir: 'notes',
   link: '/',   // 笔记入口（navbar主项“笔记”链接到此）
-  notes: [InternetNote, LinuxNote, ShicaoNote],  // 包含所有，顺序即navbar顺序
+  notes: [InternetNote, LinuxNote, ShicaoNote, MiddlewareNote, HardwareNote],  // 包含所有，顺序即navbar顺序
 })
