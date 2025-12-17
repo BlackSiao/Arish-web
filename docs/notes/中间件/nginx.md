@@ -1,7 +1,7 @@
 ---
 title: nginx
 createTime: 2025/12/08 22:18:30
-permalink: /article/97z0fimq/
+permalink: /notes/中间件/nginx/
 ---
 
 ## Nginx

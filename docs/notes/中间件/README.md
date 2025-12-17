@@ -1,7 +1,7 @@
 ---
 title: 中间件
 createTime: 2025/10/27 10:34:42
-permalink: /notes/Linux/0shiu18v/
+permalink: /notes/中间件/
 ---
 ## 中间件是什么
 
