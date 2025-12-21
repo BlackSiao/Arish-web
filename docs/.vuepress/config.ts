@@ -42,8 +42,10 @@ export default defineUserConfig({
     /* Notes配置在这里导入 */
     notes: zhNotes,
     
-    /* 添加您的部署域名, 有助于 SEO, 生成 sitemap */
-    hostname: 'https://blacksiao.github.io/Arish-web/',
+     /* 添加您的部署域名, 有助于 SEO, 生成 sitemap
+       注意：不要把 `base`（/仓库名/）重复写入 hostname，
+       否则主题会把 base 拼接到 hostname 造成双重路径 */
+     hostname: 'https://blacksiao.github.io',
 
     /* 文档仓库配置，用于 editLink */
     // docsRepo: '',
