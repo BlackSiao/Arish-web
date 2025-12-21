@@ -1,4 +1,10 @@
+
 name: Build and Deploy VuePress
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 on:
   push:
