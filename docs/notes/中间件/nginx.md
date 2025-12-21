@@ -9,7 +9,7 @@ Nginx是一个高性能的 Web服务器 + 反向代理服务器，也常用作 �
 目前世界Web服务器的33%是由Nginx占据的。
 
 值得一提的是,Nginx是由俄罗斯人开发出来的,作为开源项目被F5收购后，在俄乌战争中还发
-了声明反击俄罗斯。
+了声明反击俄罗斯的声明。
 
 在运维岗位里，它的作用非常核心：
 | 场景       | 说明                                 |
@@ -60,7 +60,7 @@ worker 进程直接调用 accept 处理连接，master 进程不参与实际的�
 *.conf是为了更加精细的说明实际的路由规则，而nginx.conf写的更像是兜底的内容。这也就像是写代码的时候，不会把所有的
 逻辑判断都写一个py文件中，而是会把其封装好，引用就好了。
 
-仔细观察nginx的配置文件，会看到有一些配置放在
+仔细观察Nginx在磁盘中的文件目录，会看到有一些配置放在
 ```
 /etc/nginx/conf.d
 ```
@@ -82,27 +82,17 @@ server {
 
 # Location
 Location块决定了,【当一个 HTTP 请求进来时：Nginx 如何判断 → 走哪个 location → 要不要代理 → 代理到哪个 upstream → 如何返回结果】
-```
-location / {
-    return 200 "ROOT\n";
-    }
-location /static/ {
-	root /var/www/loc-test;   # 凡是url里面以/static/开头的，就去/var/www/loc-test/目录下
-    }
-location /download/ {
-	add_header Content-Disposition "attachment"; 
-	root /var/www/loc-test;
-    }
-location /html/ {
-	try_files $uri $uri/ =404; # 可以按顺序尝试能不能自己处理这个请求
-    }
-```
+
 在 Nginx 配置中，location 指令 就是用来匹配和处理用户请求的 URL 路径的“路由规则”。
 
 当用户访问一个 URL（如 https://example.com/url/xx.picture）时，Nginx 会根据请求的路径部分（这里是 /url/xx.picture）来查找匹配的 location 块，然后决定“计算机该如何工作”
 比如: 直接返回静态文件、代理到后端服务器、添加缓存头、重定向、或执行其他逻辑。
 
 ## Location的匹配顺序
+
+Location的匹配规则分为"前缀匹配"和"模式匹配", 学过数据结构的朋友就会很清楚，就是简单的字符串匹配算法。
+对Nginx来说，方便人阅读的url，对它来说也只不过是一串没有任何含义的字符串，因此会严格遵循字符串的匹配规则。
+
 ```
 Location的匹配规则是【location 是根据 URI 前缀 分流的】：
 - 先找 =
@@ -111,14 +101,67 @@ Location的匹配规则是【location 是根据 URI 前缀 分流的】：
 - 最后才用普通前缀
 ```
 
-# Upstream 
-Upstream定义的是上游服务器，当nginx收到请求后，有时候需要将请求反向代理给后端的服务
+## 前缀匹配的示例
+```nginx
+location /api {
+    return 200 "hello";   # A
+}
+
+location /api/ {
+    return 200 "world";   # B
+}
+
+location ~ \.bp$ {
+    return 200 "hi";      # C
+}
 ```
+1. 先进行前缀匹配
+在所有“前缀 location”中，选择**匹配成功且 URI 最长（最具体）**的那一条
+
+2. 再进行正则匹配
+如果存在正则 location，会依次尝试
+
+3. 只要有正则匹配成功，就会覆盖前缀匹配结果
+如果没有任何正则匹配成功，则使用前缀匹配的结果
+
+# Upstream 
+Upstream定义的是上游服务器，当nginx收到请求后，很多情况下，都需要将HTTP请求反向代理给后端的服务，这个服务
+可以是"一个进程、一组进程、甚至是不同机器上的服务"
+```比如我可以先定义一个thin
 upstream thin {
     server 127.0.0.1:4566;
 }
 ```
 在这里,当收到请求就可以将其转发给本机的4566端口，通过ss命令来查看具体监听该端口的服务了
+```在Location中调用
+Location /api/{
+    proxy_pass http://thin;
+}
+```
+
+通过在upstream里面写server,也可以看到nginx天生就可以事先负载均衡 [nginx的默认策略是轮询]
+```upstream里面可以写多个server
+upstream api_backend {
+    server 127.0.0.1:4565;
+    server 127.0.0.1:4566;
+}
+```
+
+## Upstream的其他内容
+* 健康状态检测
+```
+upstream api {
+    server 127.0.0.1:4565 max_fails=3 fail_timeout=30s;
+}
+```
+* Keepalive
+```避免每次新建 TCP 连接
+upstream api {
+    server 127.0.0.1:4565;
+    keepalive 32;
+}
+```
+
 
 ## log
 ```
