@@ -12,8 +12,9 @@ SNMP 基于 UDP 协议(默认端口 161), 用来在管理站（监控系统）�
 
 #### 工作方式简单示意
 
-- 管理站 → 代理： 请求数据（如 CPU 占用、接口状态）或发送配置命令。
-- 代理 → 管理站： 返回设备状态信息，或主动发送告警（Trap）。
+- 管理站 → 代理： 管理端使用GET/SET主动来查请求数据（如 CPU 占用、接口状态）或发送配置命令。
+- 代理 → 管理站： 服务端返回设备状态信息，或主动发送告警（Trap/Inform）。
+
 
 ### SNMP的基础工作框架
 | 角色          | 英文名称                        | 功能                                                                             |
@@ -53,3 +54,23 @@ OID 本身是点分隔的数字序列（dotted decimal notation），这是 SNMP
 ### 管理站的查询方式
 管理站（如 Zabbix、Nagios 或 Prometheus）不是使用 API（如 RESTful HTTP）查询的，而是直接用 SNMP 协议（通常 UDP 端口 161）发送 GET/SET 请求到设备代理（snmpd）。SNMP 是轻量级协议，专为网络管理设计：管理站发 PDU（Protocol Data Unit）包查询 OID，代理返回 ASN.1 编码数据
 
+## snmpwalk
+snmpwalk 是 SNMP（Simple Network Management Protocol）工具套件里的一个命令行工具，用来批量获取设备的 SNMP 数据。
+
+当我们拿到一台服务器后，厂商没有提供SNMP的接口说明文档，那就可以自己使用snmpwalk命令一次性把设备上某个节点下的所有指标“爬下来”，像走迷宫一样遍历整个树结构
+
+###  工作原理
+1. SNMP 设备有一个 MIB（管理信息库）
+* MIB 是设备可监控指标的集合
+* 每个指标都有一个 OID（Object Identifier）
+* 例如：1.3.6.1.2.1.1.5.0 可能表示设备名
+
+2. snmpwalk 批量查询
+
+* snmpwalk 会从你指定的 OID 开始，递归遍历下层的所有 OID
+* 返回每个 OID 对应的值
+
+```命令格式示例
+snmpwalk -v 2c -c public 192.168.1.1
+snmpwalk -v 2c -c public -On 172.16.20.27 #把MIB写成OID
+```
