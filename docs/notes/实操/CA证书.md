@@ -1,3 +1,8 @@
+---
+title: CA证书
+createTime: 2026/01/25 15:24:15
+permalink: /notes/实操/r6b4zcrn/
+---
 # TLS和SSL和非对称加密
 TLS 和 SSL 的关系非常密切，简单一句话概括：
 TLS 就是 SSL 的“升级版后继者”，现在大家实际用的几乎全是 TLS，但因为历史原因，很多人（包括浏览器、证书厂商、文档）还是习惯把它们统称为 “SSL” 或 “SSL/TLS”。

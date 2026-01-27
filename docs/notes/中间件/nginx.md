@@ -4,7 +4,7 @@ createTime: 2025/12/08 22:18:30
 permalink: /notes/中间件/nginx/
 ---
 
-## Nginx
+## 1.Nginx的介绍
 Nginx是一个高性能的 Web服务器 + 反向代理服务器，也常用作 负载均衡器、缓存服务器,
 目前世界Web服务器的33%是由Nginx占据的。
 
@@ -56,7 +56,7 @@ worker 进程直接调用 accept 处理连接，master 进程不参与实际的�
 
 ## Nginx的conf文件解释
 
-# nginx.conf 和 *.conf的关系
+###  nginx.conf 和 *.conf的关系
 *.conf是为了更加精细的说明实际的路由规则，而nginx.conf写的更像是兜底的内容。这也就像是写代码的时候，不会把所有的
 逻辑判断都写一个py文件中，而是会把其封装好，引用就好了。
 
@@ -68,6 +68,18 @@ worker 进程直接调用 accept 处理连接，master 进程不参与实际的�
 ```
 include /etc/nginx/conf.d/*.conf;
 ```
+###  nginx -T
+既然有nginx.conf和*.conf, 为了方便用户查看全部的配置，nginx提供了命令
+```
+nginx -T: Test and dump full configuration
+nginx -t：只检查语法是否正确，不输出内容。
+```
+它会：先检查所有配置文件的语法是否正确（和 nginx -t 一样）。
+
+如果语法 OK，就把 主配置文件（通常 /etc/nginx/nginx.conf） + 所有 include 进来的子配置文件 全部合并，输出成一个完整的配置文本。
+
+这个输出的配置才是 Nginx 真正运行时使用的（不是你只看 nginx.conf 看到的那个）。
+
 # Server
 Server_name定义了HTTP请求应该发送到哪台机器上，而Nginx也就根据Server_name来实现流量的转发
 ```
