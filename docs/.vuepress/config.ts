@@ -14,7 +14,7 @@ import { viteBundler } from '@vuepress/bundler-vite'
 import { zhNotes } from './notes' 
 
 export default defineUserConfig({
-  base: '/Arish-web/',
+  base: '/',
   lang: 'zh-CN',
   locales: {
     '/': {
