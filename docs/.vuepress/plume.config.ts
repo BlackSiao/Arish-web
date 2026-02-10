@@ -11,7 +11,7 @@
  */
 
 import { defineThemeConfig } from 'vuepress-theme-plume'
-import { enNavbar, zhNavbar } from './navbar'
+import { zhNavbar } from './navbar'
 import { zhNotes } from './notes'
 
 /**
@@ -59,8 +59,8 @@ export default defineThemeConfig({
        */
       profile: {
         avatar: 'https://theme-plume.vuejs.press/plume.png',
-        name: 'My Vuepress Site',
-        description: '',
+        name: 'Black Hsiao',
+        description: '分享运维知识、技术笔记和问题总结',
         // circle: true,
         // location: '',
         // organization: '',
@@ -80,16 +80,5 @@ export default defineThemeConfig({
        //   content: '',
        // },
     },
-
-      /**
-       * 公告板
-       * @see https://theme-plume.vuejs.press/guide/features/bulletin/
-       */
-       // bulletin: {
-       //   layout: 'top-right',
-       //   contentType: 'markdown',
-       //   title: '',
-       //   content: '',
-       // },
   },
 })

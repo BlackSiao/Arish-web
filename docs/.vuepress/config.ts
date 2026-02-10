@@ -18,20 +18,22 @@ export default defineUserConfig({
   lang: 'zh-CN',
   locales: {
     '/': {
-      title: 'My Vuepress Site',
+      title: 'Black Hsiao 的技术笔记',
       lang: 'zh-CN',
-      description: '',
-    },
-    '/en/': {
-      title: 'My Vuepress Site',
-      lang: 'en-US',
-      description: '',
+      description: '分享运维知识、技术笔记和问题总结',
     },
   },
 
   head: [
     // 配置站点图标
     ['link', { rel: 'icon', type: 'image/png', href: 'https://theme-plume.vuejs.press/favicon-32x32.png' }],
+    // 设置默认语言为中文，防止自动重定向到英文
+    ['meta', { name: 'google', content: 'notranslate' }],
+    ['script', {}, `
+      if (window.location.pathname === '/' && !localStorage.getItem('vuepress-lang-preference')) {
+        localStorage.setItem('vuepress-lang-preference', 'zh-CN');
+      }
+    `],
   ],
 
   bundler: viteBundler(),
@@ -45,7 +47,7 @@ export default defineUserConfig({
      /* 添加您的部署域名, 有助于 SEO, 生成 sitemap
        注意：不要把 `base`（/仓库名/）重复写入 hostname，
        否则主题会把 base 拼接到 hostname 造成双重路径 */
-     hostname: 'https://blacksiao.github.io',
+     hostname: 'https://blackhsiao.com',
 
     /* 文档仓库配置，用于 editLink */
     // docsRepo: '',
