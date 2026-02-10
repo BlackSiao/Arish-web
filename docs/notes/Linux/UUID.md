@@ -1,3 +1,8 @@
+---
+title: UUID
+createTime: 2026/02/10 11:15:10
+permalink: /notes/Linux/elmer6de/
+---
 ````md
 # Linux 中的 UUID 全面理解（运维视角）
 

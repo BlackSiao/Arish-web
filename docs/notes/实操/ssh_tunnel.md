@@ -1,3 +1,8 @@
+---
+title: ssh_tunnel
+createTime: 2026/02/04 09:53:12
+permalink: /notes/实操/35dlymr1/
+---
 # ssh_tunnel
 
 ## 一、ssh_tunnel 是什么？解决什么问题？

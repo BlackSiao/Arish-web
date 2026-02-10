@@ -1,3 +1,8 @@
+---
+title: mount(挂载)
+createTime: 2026/02/10 15:42:25
+permalink: /notes/Linux/23wfqm2y/
+---
 
 ```markdown
 ## 挂载（mount）到底是什么意思？
