@@ -115,3 +115,17 @@ systemctl cat <service>
   ```bash
   systemctl revert <service>
   ```
+
+## systemd和service
+安装包下载下来后有:
+
+- cmdb-agent  --> 真正干活的二进制文件
+- cmdb-agent.service  --> systemd的"托管说明书"，说明书里面说了该怎么启动进程，进程挂了怎么拉起这些内容
+- deploy.sh(可选)    --> 一次性部署脚本，停掉旧agent，准备运行环境，把新的agent注册给systemd并启动
+
+. systemd接管agent：
+  - cp cmdb-agent.service /etc/systemd/system(所有被systemd管理的服务都在这里)
+  - 创建软链接 systemctl enable x.service 
+    - /etc/systemd/system/multi-user.target.wants/cmdb-agent.service
+    当系统进入multi-user.target(正常开机时)，请启动它
+  - systemctl start cmdb-agent                                  
