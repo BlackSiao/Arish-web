@@ -1,5 +1,5 @@
 ---
-title: nginx
+title: 02_nginx
 createTime: 2025/12/08 22:18:30
 permalink: /notes/中间件/nginx/
 ---

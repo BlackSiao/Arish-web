@@ -1,5 +1,5 @@
 ---
-title: mount(挂载)
+title: 07_mount(挂载)
 createTime: 2026/02/10 15:42:25
 permalink: /notes/Linux/23wfqm2y/
 ---

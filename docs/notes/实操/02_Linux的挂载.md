@@ -1,5 +1,5 @@
 ---
-title: Linux的挂载
+title: 02_Linux的挂载
 createTime: 2026/01/27 16:09:00
 permalink: /notes/实操/f1n4r56w/
 ---

@@ -1,5 +1,5 @@
 ---
-title: 文件系统和扩容
+title: 03_Linux硬盘扩容
 createTime: 2025/11/08 11:02:13
 permalink: /notes/Linux/speghfnc/
 ---

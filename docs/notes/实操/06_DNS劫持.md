@@ -1,5 +1,5 @@
 ---
-title: DNS劫持
+title: 06_DNS劫持
 createTime: 2025/10/05 10:24:13
 permalink: /notes/实操/l09d0g8o/
 ---

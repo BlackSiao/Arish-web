@@ -1,5 +1,5 @@
 ---
-title: UUID
+title: 08_UUID
 createTime: 2026/02/10 11:15:10
 permalink: /notes/Linux/elmer6de/
 ---

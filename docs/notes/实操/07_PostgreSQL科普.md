@@ -1,5 +1,5 @@
 ---
-title: PostgreSQL-技术支持必备知识
+title: 07_PostgreSQL科普
 createTime: 2025/12/07 09:23:41
 permalink: /notes/实操/d6217rzf/
 ---

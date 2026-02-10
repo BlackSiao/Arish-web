@@ -1,5 +1,5 @@
 ---
-title: 深入学习HTTP请求
+title: 02_深入学习HTTP请求
 createTime: 2025/12/24 22:30:50
 permalink: /notes/Internet/bqi3uy5p/
 ---

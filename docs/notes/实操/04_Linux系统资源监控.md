@@ -1,5 +1,5 @@
 ---
-title: 系统资源监控
+title: 04_Linux系统资源监控
 createTime: 2025/12/16 17:24:47
 permalink: /notes/实操/qe39ud2i/
 ---

@@ -1,5 +1,5 @@
 ---
-title: strace命令,查看进程的系统调用   
+title: 10_strace和ftrace   
 createTime: 2025/10/14 11:18:08
 permalink: /notes/Linux/kbejdwvs/
 ---

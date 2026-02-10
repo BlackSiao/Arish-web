@@ -1,5 +1,5 @@
 ---
-title: shell基础
+title: 01_shell基础
 createTime: 2025/09/21 22:31:00
 permalink: /notes/Linux/27etczvk/
 ---

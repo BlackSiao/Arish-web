@@ -1,5 +1,5 @@
 ---
-title: ssh_tunnel
+title: 05_ssh_tunnel
 createTime: 2026/02/04 09:53:12
 permalink: /notes/实操/35dlymr1/
 ---

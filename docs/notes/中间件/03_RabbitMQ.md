@@ -1,5 +1,5 @@
 ---
-title: RabbitMQ
+title: 03_RabbitMQ
 createTime: 2025/12/24 17:46:29
 permalink: /notes/中间件/erbcyqjb/
 ---

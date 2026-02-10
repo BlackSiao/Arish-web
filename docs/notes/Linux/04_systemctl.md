@@ -1,5 +1,5 @@
 ---
-title: systemctl
+title: 04_systemctl
 createTime: 2025/10/22 16:47:04
 permalink: /notes/Linux/z4cszob4/
 ---

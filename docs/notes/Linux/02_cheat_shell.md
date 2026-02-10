@@ -1,5 +1,5 @@
 ---
-title: cheat_shell
+title: 02_cheat_shell
 createTime: 2025/09/23 15:47:50
 permalink: /notes/Linux/1ss1lgue/
 ---

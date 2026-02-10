@@ -1,5 +1,5 @@
 ---
-title: redis
+title: 01_redis
 createTime: 2025/12/24 17:07:55
 permalink: /notes/中间件/gzbpurt4/
 ---
