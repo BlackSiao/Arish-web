@@ -25,35 +25,35 @@ import { defineNoteConfig, defineNotesConfig } from 'vuepress-theme-plume'
 /* =================== locale: zh-CN ======================= */
 
 const InternetNote = defineNoteConfig({
-  text: 'Internet',  // 关键：添加text，用于navbar子菜单显示
+  text: '1.计算机网络',  // 关键：添加text，用于navbar子菜单显示
   dir: 'Internet',
   link: '/notes/Internet/',
   sidebar: 'auto'    // 进入此页时，侧边栏显示Internet下.md文件
 })
 
 const LinuxNote = defineNoteConfig({
-  text: 'Linux',     // 关键：添加text
+  text: '2.Linux',     // 关键：添加text
   dir:  'Linux',
   link: '/notes/Linux/',
   sidebar: 'auto'
 })
 
 const ShicaoNote = defineNoteConfig({  // 新增实操
-  text: '实操',
+  text: '3.实用技巧',
   dir: '实操',
   link: '/notes/实操/',
   sidebar: 'auto'
 })
 
 const MiddlewareNote = defineNoteConfig({
-  text: '中间件',
+  text: '4.中间件',
   dir: '中间件',
   link: '/notes/中间件/',
   sidebar: 'auto'
 })
 
 const HardwareNote = defineNoteConfig({
-  text: '硬件相关内容',
+  text: '5.硬件相关内容',
   dir: '硬件相关内容',
   link: '/notes/硬件相关内容/',
   sidebar: 'auto'
