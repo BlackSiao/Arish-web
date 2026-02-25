@@ -1,6 +1,8 @@
 ---
 title: Linux & 网络常用 CheatList
 description: 本文件收集常用的 Linux 与网络排查命令与使用要点，方便运维快速定位问题并记录结果。
+createTime: 2026/02/24 18:19:20
+permalink: /notes/Internet/u719fp1c/
 ---
 
 # Linux & 网络 常用 CheatList
