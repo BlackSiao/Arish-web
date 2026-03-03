@@ -4,12 +4,19 @@ config:
   - type: hero
     full: false
     hero:
-      name: Black Hsiao
-      tagline: 分享运维知识和技术笔记
+      tagline: BlackSiao's Blog
+      text: 记录我在生活和工作中的一点碎碎念
       image:
         src: https://theme-plume.vuejs.press/plume.png
         alt: Black Hsiao
-  
+
+  - type: article
+    layout: article
+    title: 最新文章
+    # 可选：只显示特定标签的文章
+    filter: tag=k8s OR tag=故障
+    limit: 6
+
   - type: features
     features:
       - icon: 🛠
