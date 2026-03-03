@@ -5,18 +5,10 @@ config:
     full: false
     hero:
       name: Black Hsiao
-      text: 技术笔记
-      tagline: 分享运维知识、技术笔记和问题总结
+      tagline: 分享运维知识和技术笔记
       image:
         src: https://theme-plume.vuejs.press/plume.png
         alt: Black Hsiao
-      actions:
-        - theme: brand
-          text: 开始阅读
-          link: /notes/
-        - theme: alt
-          text: 最近笔记
-          link: /blog/
   
   - type: features
     features:
