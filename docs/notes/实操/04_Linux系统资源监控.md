@@ -72,6 +72,7 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
 
 ```bash
 dmesg | tail -50          # 看最新的 50 条
+dmesg | less              # PgDn、PgUp一样的配置
 dmesg -w                  # 实时跟随（类似 tail -f）
 dmesg --level=err,warn    # 只看错误和警告
 dmesg -T | egrep -i 'oom|kill|out of memory|blocked' # 通过内核的日志，给出IO过高的铁证
