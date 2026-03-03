@@ -1,0 +1,92 @@
+# 一、网卡（网络接口）管理
+
+## ethtool - 网卡信息查看
+
+查看网卡详细信息：
+```bash
+ethtool ethX
+```
+
+查看网卡是否丢包（错误率、丢包情况）：
+```bash
+ethtool -S ethX
+```
+
+## TCP 参数检查
+
+查看所有 TCP 相关参数是否被限制：
+```bash
+sysctl -a | grep tcp
+```
+
+
+---
+
+# 二、硬盘健康检测
+
+## smartctl - S.M.A.R.T 硬盘检测工具
+
+**工具说明：**
+
+`smartctl` 是 Linux/Unix 系统下最强大的硬盘健康检测工具。全称为 S.M.A.R.T. Control，专门用来读取硬盘驱动器内置的 S.M.A.R.T.（自我监控、分析及报告技术）数据。支持几乎所有现代类型的硬盘，包括 SSD、NVMe 和 HDD，但由于技术架构不同，表现形式和参数会有所区别。
+
+**常用命令：**
+
+1. **查看硬盘基本信息**（型号、序列号、是否支持 SMART）
+```bash
+smartctl -i /dev/nvme0n1     # NVMe SSD
+smartctl -i /dev/sda         # SATA HDD/SSD
+```
+
+2. **查看详细健康报告**（最常用）
+```bash
+smartctl -a /dev/sda         # SATA SSD/HDD
+smartctl -a /dev/nvme0n1     # NVMe SSD
+```
+
+3. **查整体健康状态**
+```bash
+smartctl -H /dev/sda
+```
+
+**重要注意事项：**
+- `smartctl` 需要 root 权限才能直接访问硬件寄存器
+- 在云服务器或虚拟机（如 Docker、VM）中，通常无法直接使用 `smartctl`，因为它看到的是虚拟磁盘，而不是底层物理硬件
+
+
+---
+
+# 三、系统控制命令
+
+## 系统状态切换
+
+```bash
+init 0    # 关机
+init 1    # 单用户模式（救援模式）
+init 6    # 重启
+```
+
+
+---
+
+# 四、远程访问管理
+
+## SSH 密钥认证
+
+**配置方式：**
+
+在目标机器上配置公钥，就可以使用密钥直接连接，无需输入密码。
+
+> 📝 TODO: 详细配置步骤待补充
+
+---
+
+# 五、硬件管理概念
+
+## BMC（Baseboard Management Controller）
+
+**重要概念：**
+- **BMC IP 和公网 IP 不能代表同一台电脑**
+- BMC 是电脑上的一块小主板，具有独立的系统和存储空间
+- 可以在操作系统关闭时进行硬件管理和远程控制
+- 常用于数据中心服务器的远程管理（Out-of-Band Management）
