@@ -1,8 +1,18 @@
 [
   {
+    "title": "14_git初始化及日常使用",
+    "link": "/notes/实操/pien0xo2/",
+    "date": "2026-03-05T06:18:49.000Z"
+  },
+  {
+    "title": "13_检查服务器硬件命令",
+    "link": "/notes/实操/qr5p2i1y/",
+    "date": "2026-03-02T08:16:14.000Z"
+  },
+  {
     "title": "12_单用户模式救援",
-    "link": "/docs/notes/实操/12_单用户模式救援/",
-    "date": "2026-03-03T06:36:58.757Z"
+    "link": "/notes/实操/5sjvcloc/",
+    "date": "2026-03-02T07:50:48.000Z"
   },
   {
     "title": "13_硬盘和LVM和Volume",
@@ -18,15 +28,5 @@
     "title": "11_带宽低如何排查",
     "link": "/notes/实操/y4asom89/",
     "date": "2026-02-24T10:18:42.000Z"
-  },
-  {
-    "title": "07_mount(挂载)",
-    "link": "/notes/Linux/23wfqm2y/",
-    "date": "2026-02-10T07:42:25.000Z"
-  },
-  {
-    "title": "08_UUID",
-    "link": "/notes/Linux/elmer6de/",
-    "date": "2026-02-10T03:15:10.000Z"
   }
 ]
