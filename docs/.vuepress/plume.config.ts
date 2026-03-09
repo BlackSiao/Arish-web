@@ -58,9 +58,9 @@ export default defineThemeConfig({
        * @see https://theme-plume.vuejs.press/config/basic/#profile
        */
       profile: {
-        avatar: 'https://theme-plume.vuejs.press/plume.png',
+        avatar: '/owl/站木桩.png',
         name: 'Black Hsiao',
-        description: '分享运维知识、技术笔记和问题总结',
+        description: '准备成为大魔法师的24岁社畜',
         // circle: true,
         // location: '',
         // organization: '',

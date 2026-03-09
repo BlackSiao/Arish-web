@@ -48,3 +48,11 @@
   --vp-c-text-3: rgba(235, 235, 245, 0.38);
   */
 }
+
+/* 调整博客右侧 profile 头像大小 */
+.vp-blog-profile img {
+  width: 140px !important;
+  height: 140px !important;
+  object-fit: cover;
+  border-radius: 50%;
+}
