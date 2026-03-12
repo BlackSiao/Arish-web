@@ -1,28 +1,71 @@
 ---
-title: 04_systemctl
+title: 04_systemd 和 systemctl
 createTime: 2025/10/22 16:47:04
 permalink: /notes/Linux/z4cszob4/
 ---
+
 # Systemd的由来
-历史上，Linux 的启动一直采用init进程。sudo /etc/init.d/apache2 start
+历史上，Linux操作系统的启动一直采用 init进程。
+```
+sudo /etc/init.d/apache2 start
+```
 
-这种方法有两个缺点。
+但是这种方法有两个缺点。
 
-* 一是启动时间长。init进程是串行启动，只有前一个进程启动完，才会启动下一个进程。
+* 一是启动时间长。init进程是串行启动，只有前一个进程启动完，才会启动下一个进程。比如说先启动图形化系统，再启动网卡等等；
 
 * 二是启动脚本复杂。init进程只是执行启动脚本，不管其他事情。脚本需要自己处理各种情况，这往往使得脚本变得很长。
 
 ##  Systemd的概述
 Systemd 就是为了解决这些问题而诞生的。它的设计目标是，为系统的启动和管理提供一套完整的解决方案。
 
-根据 Linux 惯例，字母d是守护进程（daemon）的缩写。 Systemd 这个名字的含义，就是它要守护整个系统。
+根据 Linux 惯例，字母d是守护进程（daemon）的缩写。 Systemd 这个名字的含义，就是它要守护整个系统。它不仅负责启动操作系统，还负责 僵尸进程的回收 和 服务挂掉后的自动重启。
 
 使用了 Systemd，就不需要再用init了。Systemd 取代了initd，成为系统的第一个进程（PID 等于 1），其他进程都是它的子进程。
-$ systemctl --version
+
+```
+ps -p 1 #查看PID为1的进程，可以看到就是systemd
+```
 
 Systemd 的优点是功能强大，使用方便，缺点是体系庞大，非常复杂。事实上，现在还有很多人反对使用 Systemd，理由就是它过于复杂，与操作系统的其他部分强耦合，违反"keep simple, keep stupid"的Unix 哲学。
 
-Systemd 并不是一个命令，而是一组命令，涉及到系统管理的方方面面
+* 但是你能想象，重启 sshd, networking 不用 Systemctl 来实现，而是每一个模块用一个不同的命令吗？那才是真的要了老命。😩 *
+
+## 可执行文件和Service
+*Service的位置在/lib/systemd/system,放到这里才能被systemd使用*
+以一个已经启动了的nginx进程为例，当某某网页返回错误404的时候，我们有时候就会卡了通过
+```
+systemctl status nginx.service
+```
+来查看一下是不是Nginx挂掉了，导致前端打不开了。这里引出的具体论点就是:
+
+- 实际工作的是二进制文件 Nginx
+- 控制对应 Nginx 的行为: 重启，挂掉后是否拉起的说明书，对应的就是 Nginx.service
+- 而Systemd就是参考Service来对实际的进程进行操作的
+
+### 一个典型的Service是啥样的
+```
+[Unit]
+Description=我的自定义APP  # 它是谁
+After=network.target      # 它要在网络启动后才启动（逻辑顺序）
+
+[Service]
+ExecStart=/usr/bin/python3 /app/main.py  # 怎么启动（二进制程序路径）
+Restart=always                           # 挂了怎么办（自动重启）
+
+[Install]
+WantedBy=multi-user.target  # 开机自启时属于哪个级别
+```
+
+### Systemctl的实际工作流
+比如当用户执行 systemctl start nginx 的时候，实际发生的事情是这样的:
+
+* 查找： systemctl 通知 Systemd 寻找名为 nginx.service 的文件
+* 解析： Systemd 读取说明书里的 ExecStart=/usr/sbin/nginx, 找到对应的二进制文件
+* 执行： Systemd 创建一个环境，把二进制程序跑起来。
+* 记录： 程序启动时打印的“Starting Nginx...”等信息，被 journald 守护进程接管。
+* 反馈： 这就是为什么可以通过 journalctl -u nginx 来查看程序执行的时候到底发生了什么
+
 
 # Systemd 服务排查与管理心得
 
@@ -80,6 +123,7 @@ journalctl -u <service> -b
 说明：  
 `-u` 指定服务单元，`-b` 表示仅查看本次开机后的日志。
 
+
 ### 步骤 3：检查服务配置文件
 ```bash
 systemctl cat <service>
@@ -100,32 +144,24 @@ systemctl cat <service>
 
 ---
 
-## 三、补充建议
-- 若服务长期启动失败，可执行：
-  ```bash
-  journalctl -xe
-  ```
-  查看系统级错误详情。  
-- 服务配置修改后需执行：
-  ```bash
-  systemctl daemon-reload
-  ```
-  让 systemd 重新加载配置。  
-- 若要恢复服务默认配置，可使用：
-  ```bash
-  systemctl revert <service>
-  ```
+## 三、Journalctl的常用命令
 
-## systemd和service
-安装包下载下来后有:
+1. 查看最近 1 小时的日志
+```
+journalctl -u nginx --since "1 hour ago"
+```
 
-- cmdb-agent  --> 真正干活的二进制文件
-- cmdb-agent.service  --> systemd的"托管说明书"，说明书里面说了该怎么启动进程，进程挂了怎么拉起这些内容
-- deploy.sh(可选)    --> 一次性部署脚本，停掉旧agent，准备运行环境，把新的agent注册给systemd并启动
+2. 查看特定日期范围的日志
+```
+journalctl -u nginx --since "2024-05-01" --until "2024-05-02 03:00"
+```
 
-. systemd接管agent：
-  - cp cmdb-agent.service /etc/systemd/system(所有被systemd管理的服务都在这里)
-  - 创建软链接 systemctl enable x.service 
-    - /etc/systemd/system/multi-user.target.wants/cmdb-agent.service
-    当系统进入multi-user.target(正常开机时)，请启动它
-  - systemctl start cmdb-agent                                  
+3. 实时查看最新的报错
+-f (follow)：实时滚动显示新产生的日志（类似 tail -f）
+```
+journalctl -u nginx -f
+```
+
+
+
+
