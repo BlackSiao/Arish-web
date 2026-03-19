@@ -1,5 +1,15 @@
 [
   {
+    "title": "10_traceroute和ICMP报文",
+    "link": "/notes/Internet/2sj6tv38/",
+    "date": "2026-03-14T06:43:54.000Z"
+  },
+  {
+    "title": "09_BGP路由",
+    "link": "/notes/Internet/yosmuqa8/",
+    "date": "2026-03-14T06:42:58.000Z"
+  },
+  {
     "title": "14_git初始化及日常使用",
     "link": "/notes/实操/pien0xo2/",
     "date": "2026-03-05T06:18:49.000Z"
@@ -18,15 +28,5 @@
     "title": "13_硬盘和LVM和Volume",
     "link": "/notes/Linux/0eat9yfo/",
     "date": "2026-02-26T14:10:04.000Z"
-  },
-  {
-    "title": "Linux & 网络常用 CheatList",
-    "link": "/notes/Internet/u719fp1c/",
-    "date": "2026-02-24T10:19:20.000Z"
-  },
-  {
-    "title": "11_带宽低如何排查",
-    "link": "/notes/实操/y4asom89/",
-    "date": "2026-02-24T10:18:42.000Z"
   }
 ]
