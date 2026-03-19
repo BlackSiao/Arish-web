@@ -145,6 +145,8 @@ systemctl cat <service>
 ---
 
 ## 三、Journalctl的常用命令
+在debian最新的操作系统里面，已经取消了/var/log/syslog文件，所有的service的log和系统内核的log都集中使用journalctl进行查看了，以下是
+我日常工作中经常使用的命令，老实说journalctl查对应时间点的语法使用起来真的是太糟糕了。
 
 1. 查看最近 1 小时的日志
 ```
@@ -162,6 +164,8 @@ journalctl -u nginx --since "2024-05-01" --until "2024-05-02 03:00"
 journalctl -u nginx -f
 ```
 
-
-11
+4. 查看对应的系统内核日志(-k)
+```
+journalctl -k | tail -n 50
+```
 
