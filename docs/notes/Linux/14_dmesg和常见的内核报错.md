@@ -1,4 +1,11 @@
 
+# 内核日志 (dmesg) vs. 系统日志 (syslog)
+
+- 内核日志 (journactl -k / dmesg)：只记录 Linux 内核层级的消息。比如：硬件驱动加载、内存溢出（OOM）、网卡链路状态切换（UP/DOWN）、防火墙（iptables/nftables）拦截记录等。
+- 系统/应用日志：记录的是用户态的消息。比如：SSH 登录、Cron 定时任务执行、Nginx 访问记录、数据库报错等。
+
+顺带一提，内核日志是保存的原文件就在 /dev/kmsg 里面
+
 # 告警: OOM-killer
 
 当Linux内核检测到系统内存不足时，会触发**OOM-killer**（Out of Memory Killer）机制，强制杀死某些进程以防止系统崩溃。这并不总是意味着物理内存耗尽，也可能是容器或进程组的内存限制被触发。
