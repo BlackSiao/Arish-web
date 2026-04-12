@@ -1,3 +1,8 @@
+---
+title: 14_dmesg和常见的内核报错
+createTime: 2026/04/12 19:50:39
+permalink: /notes/Linux/lka39pla/
+---
 
 # 内核日志 (dmesg) vs. 系统日志 (syslog)
 
