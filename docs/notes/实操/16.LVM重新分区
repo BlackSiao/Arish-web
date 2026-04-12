@@ -1,0 +1,68 @@
+## 背景
+
+在已有 LVM 分区的服务器上，有时需要重新调整逻辑卷容量分配——将一个逻辑卷的空间转移到另一个逻辑卷。
+
+**基本原理**：
+1. 删除源逻辑卷（LVM 1），释放属于它的容量回卷组（VG）
+2. 将释放的容量扩展到目标逻辑卷（LVM 2）
+3. 同步文件系统使其识别新容量
+
+## 详细步骤
+
+### 第 1 步：解除挂载点的占用
+
+检查挂载点是否有进程在使用：
+
+```bash
+fuser -m /mnt/source_mount
+```
+
+如果有进程正在使用该挂载点，需要将其终止：
+
+```bash
+fuser -k /mnt/source_mount  # -k 表示强制杀死进程
+```
+
+### 第 2 步：删除源逻辑卷
+
+```bash
+lvremove /dev/mapper/source_lv
+# 或
+lvremove /dev/vg_name/source_lv
+```
+
+确认删除操作（y/n）。此时源逻辑卷占用的容量会返回到卷组（VG）中成为可用空间。
+
+### 第 3 步：将释放的容量分配给目标逻辑卷
+
+```bash
+lvextend -l +100%FREE /dev/mapper/target_lv
+# 或
+lvextend -l +100%FREE /dev/vg_name/target_lv
+```
+
+参数说明：
+- `-l +100%FREE`：将所有可用空间（100%FREE）扩展到目标逻辑卷
+
+### 第 4 步：同步文件系统
+
+**如果使用 XFS 文件系统**：
+
+```bash
+xfs_growfs /mount_point
+```
+
+**如果使用 Ext4 文件系统**：
+
+```bash
+resize2fs /dev/mapper/target_lv
+```
+
+### 第 5 步：验证结果
+
+```bash
+df -h
+```
+
+确认目标挂载点的容量已得到扩展。
+
