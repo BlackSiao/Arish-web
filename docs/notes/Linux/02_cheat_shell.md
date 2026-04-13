@@ -3,14 +3,10 @@ title: 02_cheat_shell
 createTime: 2025/09/23 15:47:50
 permalink: /notes/Linux/1ss1lgue/
 ---
-# DDI 常用日志查看
 
-## 1. DDI 常看的日志
+这篇文档用来记录常用的Linux命令，我有时候会忘记具体的语法
 
-### 1.1 存放 DNS 以前的查询日志路径为：
-```
-/usr/local/appdata/normal/log/log_bak/query
-```
+# 常用日志查看
 
 面对 `.gz` 文件一般都是使用：
 

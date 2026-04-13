@@ -1,10 +1,9 @@
 ---
-title: 06_处理日志命令
+title: 06_AWK命令
 createTime: 2025/09/22 22:31:58
 permalink: /notes/Linux/85muhzy2/
 ---
 # AWK
-
 *Created: 2025/09/22 22:31:58*
 
 ## 1. AWK 的基本语法
