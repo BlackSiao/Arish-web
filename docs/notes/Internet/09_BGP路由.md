@@ -123,3 +123,10 @@ HE.net 本身就是一个大 ASN（自治系统）。
 模式,是否付费,谁付钱给谁,为什么愿意转发别人的包,典型场景
 Transit,是（单向付费）,小网络 → 大网络付钱,因为收了钱，必须提供“全网访问”服务，包括转发到任何互联网目的地的流量,小 ISP / 企业向 Tier-1 / 大运营商买 transit
 Peering,通常免费（settlement-free）,互不收费（bill-and-keep）,因为双方流量对等或接近对等，互相省钱（都不用再付 transit 费），而且能改善性能、降低延迟,大内容商（如 Google、Netflix）与大 ISP 之间；规模相近的运营商之间
+
+
+### PeeringDB
+
+当自己的ASN正式开始使用的时候，因为ASN之间都有网络互通的需求，因为大家都可以在PeeringDB上查看到现在某一个ASN的信息，就以 Artruby这个 ASN为例， 在这个页面上会详细的说明出
+这个ASN属于哪个实体，用了什么协议，公司网站是多少，他在世界上的哪些 IXP 上有物理接入，接入对应的信息分别是哪些。这样就方便其他的ASN实体想要过来建 peer 了
+![alt text](../Internet/Pictures/PeeringDB.png)
