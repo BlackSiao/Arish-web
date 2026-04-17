@@ -233,19 +233,198 @@ BEGIN {
   └───────────────────────────────────────┴──────────────────────┘
 
 
+----
+ TCP重传的触发条件是：发送方发出的数据包在超时时间内没有收到对端的 ACK。
+
+  这意味着：
+  1. 双方已完成三次握手，连接处于 ESTABLISHED 状态
+  2. 发送方发出数据段，启动重传计时器（RTO）
+  3. RTO 超时或收到 3个重复 ACK（Fast Retransmit），触发重传
 
 
+ 例外情况：握手阶段也会重传
+
+  ┌──────────────┬───────────────────────────────────────────────────────────┐
+  │     场景     │                           说明                            │
+  ├──────────────┼───────────────────────────────────────────────────────────┤
+  │ SYN 重传     │ 客户端发出 SYN 没收到 SYN-ACK，会重传 SYN（连接还没建立） │
+  ├──────────────┼───────────────────────────────────────────────────────────┤
+  │ SYN-ACK 重传 │ 服务端发出 SYN-ACK 没收到 ACK，会重传 SYN-ACK             │
+  ├──────────────┼───────────────────────────────────────────────────────────┤
+  │ FIN 重传     │ 关闭阶段 FIN 未被 ACK 也会重传                            │
+  └──────────────┴───────────────────────────────────────────────────────────┘
 
 
+# 更细粒度：区分 SYN 重传 vs 数据重传
+  netstat -s | grep -E "segments retransmited|TCPSynRetrans"
+
+···
+root@debian:~# netstat -s | grep -E "segments retransmited|TCPSynRetrans"
+    TCPSynRetrans: 635
+root@debian:~#
+···
+
+  # 抓包确认
+  tcpdump -i eth0 'tcp[tcpflags] & tcp-rst != 0' -w /tmp/cap.pcap
 
 
-
-
-
-
+#  确认和本机建立TCP连接的全部IP
+```
+ss -tn state established
 ```
 
++++
+root@VNHN-FPT-F04-14:~# ss -tn state established
+Recv-Q         Send-Q                       Local Address:Port                        Peer Address:Port        Process
+0              0                           58.186.119.226:18785                      118.69.17.152:443
+0              0                           58.186.119.226:64119                        23.32.74.32:443
+0              0                           58.186.119.226:21967                      118.69.17.170:443
+0              0                           58.186.119.226:9502                      113.173.209.77:58045
+0              0                           58.186.119.226:9502                        14.234.89.19:54751
+0              0                           58.186.119.226:9502                     113.178.111.249:54968
+0              0                           58.186.119.226:9502                     116.109.141.131:53363
+0              0                           58.186.119.226:9502                       14.186.91.236:64438
 
++++
+Recv-Q
+
+  接收缓冲区中已收到但应用程序还没有 read() 走的字节数。
+
+  - 正常情况应该接近 0
+  - 持续偏高 → 说明应用程序处理太慢，数据堆在内核缓冲区里没被消费
+
+  Send-Q
+
+  发送缓冲区中已发送但还没收到对端 ACK 的字节数（即"在途"数据）。
+
+  - 正常情况波动但接近 0
+  - 持续偏高 → 说明对端接收慢或网络有问题，数据发出去但 ACK 迟迟不回
+
+  和 TCP 重传的关联
+
+  Send-Q 持续高  →  对端 rwnd 满 或 网络拥塞
+                    →  发送方被迫等待
+                    →  超时后触发重传
++++
+```
+
+判断出具体丢包的网段后，就可以进一步查看丢包的内容了： 
+
+ # mtr 是最好用的工具，同时看路由 + 丢包 + 延迟
+  mtr -zbn --report --report-cycles 60 113.185.87.1
+
+ # 抓取和这个网段之间的 TCP 流量，重点看重传
+  tcpdump -i eth0 -w /tmp/retrans_113.pcap \
+    'net 113.185.87.0/24 and tcp'
+
+---
+排查的脚本:
+
+ #!/bin/bash
+  # tcp_diag.sh — TCP 丢包一键诊断
+  # 用法: ./tcp_diag.sh [目标IP或网段]
+
+  TARGET="${1:-}"
+  IFACE="${2:-$(ip route | awk '/default/{print $5; exit}')}"
+
+  echo "============================================"
+  echo " TCP 丢包诊断报告 $(date)"
+  echo " 网卡: $IFACE  目标: ${TARGET:-全量}"
+  echo "============================================"
+
+  # ── 1. 重传率（10s 采样）──────────────────────
+  echo -e "\n[1] TCP 重传率（10s 窗口）"
+  read_snmp() {
+      awk '/^Tcp: [0-9]/{print $13, $11}' /proc/net/snmp
+  }
+  read r1 o1 < <(read_snmp); sleep 10; read r2 o2 < <(read_snmp)
+  awk -v r1=$r1 -v o1=$o1 -v r2=$r2 -v o2=$o2 'BEGIN{
+      dr=r2-r1; do_=o2-o1
+      printf "  RetransSegs Δ=%-6d  OutSegs Δ=%-8d  重传率=%.4f%%\n",
+          dr, do_, (do_>0 ? 100.0*dr/do_ : 0)
+  }'
+
+  # ── 2. 网卡错误 ───────────────────────────────
+  echo -e "\n[2] 网卡物理层错误 ($IFACE)"
+  ethtool -S $IFACE 2>/dev/null | \
+      grep -Ei 'err|drop|discard|fifo|crc|miss|overflow' | \
+      awk '$2>0{printf "  %-40s %d\n", $1, $2}' | head -20
+  ip -s -s link show $IFACE | grep -A2 "RX:"
+
+  # ── 3. 软中断 / softnet ───────────────────────
+  echo -e "\n[3] 软中断 Dropped / Time_squeeze"
+  awk 'NR<=8{
+      dropped=strtonum("0x"$2)
+      squeezed=strtonum("0x"$3)
+      if(dropped>0||squeezed>0)
+          printf "  CPU%-2d  dropped=%-8d time_squeeze=%d\n", NR-1, dropped, squeezed
+  }' /proc/net/softnet_stat
+
+  # ── 4. 协议栈关键 counter ─────────────────────
+  echo -e "\n[4] 内核协议栈丢包 counter"
+  nstat -az 2>/dev/null | awk '
+      /ListenOver|ListenDrop|BacklogDrop|PruneCalled|RcvPruned|
+       OfoPruned|TimeWait|SynRetrans|ReasmFail|ConntrackFull/{
+          if($2>0) printf "  %-35s %d\n", $1, $2
+      }'
+  # fallback
+  netstat -s 2>/dev/null | grep -iE 'overflow|prune|drop|retransmit' | \
+      grep -v "^$" | sed 's/^/  /'
+
+  # ── 5. Conntrack 使用率 ───────────────────────
+  echo -e "\n[5] Conntrack 表使用率"
+  ct_cur=$(cat /proc/sys/net/netfilter/nf_conntrack_count 2>/dev/null || echo 0)
+  ct_max=$(cat /proc/sys/net/netfilter/nf_conntrack_max 2>/dev/null || echo 1)
+  pct=$((ct_cur * 100 / ct_max))
+  echo "  $ct_cur / $ct_max  (${pct}%)"
+  [ $pct -gt 80 ] && echo "  ⚠️   WARNING: conntrack 使用率超 80%，高风险丢包"
+
+  # ── 6. Accept Queue 溢出 ──────────────────────
+  echo -e "\n[6] Listen 状态 socket（Recv-Q > 0 说明 accept queue 积压）"
+  ss -lnt | awk 'NR==1||$2>0{print "  "$0}'
+
+  # ── 7. SYN 重传（连接建立失败）────────────────
+  echo -e "\n[7] SYN 重传数"
+  grep TCPSynRetrans /proc/net/netstat 2>/dev/null | \
+      awk 'NR==2{print "  TCPSynRetrans:", $NF}'
+
+  # ── 8. 热点连接（Send-Q 积压）────────────────
+  echo -e "\n[8] Send-Q 积压的连接（发送拥塞）"
+  ss -tn state established | awk '$2>0{print "  "$0}' | head -10
+
+  # ── 9. 针对目标网段（如果指定了）────────────
+  if [ -n "$TARGET" ]; then
+      echo -e "\n[9] 目标 $TARGET 的活跃连接"
+      ss -tin "dst $TARGET" | grep -E 'retrans|rtt|cwnd|ssthresh' | \
+          sed 's/^/  /'
+
+      echo -e "\n[10] mtr 路由追踪（10次，后台运行，结果写 /tmp/mtr_$$.txt）"
+      mtr -zbn --report --report-cycles 10 $(echo $TARGET | cut -d/ -f1) \
+          > /tmp/mtr_$$.txt 2>&1 &
+      echo "  PID $!  结果: /tmp/mtr_$$.txt"
+  fi
+
+  # ── 10. 综合判断 ──────────────────────────────
+  echo -e "\n============================================"
+  echo " 初步判断"
+  echo "============================================"
+
+  # 读协议栈关键值做简单决策
+  listen_drop=$(nstat -az 2>/dev/null | awk '/ListenDrop/{print $2}')
+  prune=$(nstat -az 2>/dev/null | awk '/PruneCalled/{print $2}')
+  syn_retrans=$(grep TCPSynRetrans /proc/net/netstat 2>/dev/null | awk 'NR==2{print $NF}')
+
+  [ "${listen_drop:-0}" -gt 0 ] && \
+      echo "  ⚠️   ListenDrop>0 → accept queue 满，应用处理慢或 somaxconn 太小"
+  [ "${prune:-0}" -gt 0 ] && \
+      echo "  ⚠️   PruneCalled>0 → socket buffer 不足，考虑调大 tcp_rmem"
+  [ "${syn_retrans:-0}" -gt 100 ] && \
+      echo "  ⚠️   SYN重传>100 → 存在连接建立失败，检查 backlog 或上游链路"
+  [ $pct -gt 80 ] && \
+      echo "  ⚠️   Conntrack 高水位，NAT/防火墙环境下会静默丢包"
+
+  echo "  ℹ️   若以上均正常 → 问题大概率在上游链路（运营商/IDC对端）"
+  echo ""
 
 
 
