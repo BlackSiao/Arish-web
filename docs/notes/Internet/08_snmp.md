@@ -1,5 +1,5 @@
 ---
-title: 08_snmp
+title: 08_SNMP协议
 createTime: 2025/10/10 21:06:52
 permalink: /notes/Internet/fekunc0q/
 ---
