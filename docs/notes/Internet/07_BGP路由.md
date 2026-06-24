@@ -1,5 +1,5 @@
 ---
-title: 09_BGP协议
+title: 07_BGP协议
 createTime: 2026/03/14 14:42:58
 permalink: /notes/Internet/yosmuqa8/
 ---
