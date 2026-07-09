@@ -141,6 +141,14 @@ https://ping.pe/
 | **Peering** | 通常免费（settlement-free） | 互不收费（bill-and-keep） | 因为双方流量对等或接近对等，互相省钱（都不用再付 transit 费），且能改善性能、降低延迟 | 大内容商（如 Google、Netflix）与大 ISP 之间；规模相近的运营商之间 |
 |
 
+----
+
+除此之外，从实际上来看， Transit 和 Peering 能收到的路由规则也天差地别
+
+![alt text](../Internet/Pictures/Transit和peering的路由数.png)
+
+Transit的路由条目数是百万级别的，这几乎就是全球的路由了，这意味着通过Transit可以达到互联网的任一角落
+Peering的路由数是几千条，大家为了省钱和提速，把各自的路由器连到了一起。
 ### PeeringDB
 
 当某一数据中心使用的时候，因为ASN之间都有网络互通的需求，并且大家都可以在PeeringDB上查看到现在某一个ASN的信息，就以 Artruby这个 ASN为例， 在这个页面上会详细的说明出
