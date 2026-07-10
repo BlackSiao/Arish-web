@@ -61,7 +61,7 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
 
 ## 3. dmesg —— 内核环形缓冲区日志（底层第一现场）
 
-全称：**display message** 或 **driver message**，读作 “dee-message”
+全称：**display message** 或 **driver message**，读作 “dee-message”, 在服务器运行期间, dmesg显示出来的记录完全存在内存中的。 当Linux内核运行、驱动程序加载、硬件出错时，内核会将这些日志实时写入内存中的一块 Ring Buffer 里面去。
 
 - 记录的是内核态的错误、警告、信息
 - 典型场景：
