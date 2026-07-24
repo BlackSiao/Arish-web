@@ -17,6 +17,7 @@ sudo /etc/init.d/apache2 start
 * 二是启动脚本复杂。init进程只是执行启动脚本，不管其他事情。脚本需要自己处理各种情况，这往往使得脚本变得很长。
 
 ## 1. Systemd的概述
+
 Systemd 就是为了解决这些问题而诞生的。它的设计目标是，为系统的启动和管理提供一套完整的解决方案。
 
 根据 Linux 惯例，字母d是守护进程（daemon）的缩写。 Systemd 这个名字的含义，就是它要守护整个系统。它不仅负责启动操作系统，还负责*僵尸进程的回收*和*服务挂掉后的自动重启*。
@@ -29,10 +30,10 @@ ps -p 1 #查看PID为1的进程，可以看到就是systemd
 
 Systemd 的优点是功能强大，使用方便，缺点是体系庞大，非常复杂。现在还有很多人反对使用 Systemd，理由就是它过于复杂，与操作系统的其他部分强耦合，违反"keep simple, keep stupid"的Unix 哲学。
 
-但是你能想象，重启 sshd, networking 不用 Systemctl 来实现，而是每一个模块用一个不同的命令吗？那才是真的要了老命。 *
+但是你能想象，重启 sshd, networking 不用 Systemctl 来实现，而是每一个模块用一个不同的命令吗？那才是真的要了老命。
 
 ## 2. 可执行文件和Service
-Service的位置放在 */lib/systemd/system*路径下 ,只有这里的Service才能被systemd使用
+Service的位置放在 */lib/systemd/system*路径下 , 只有这里的Service才能被systemd使用
 
 以一个已经启动了的nginx进程为例，当某网页返回错误404的时候，排查的步骤中就会包括服务器端查看后台的Nginx是否还正常
 ```
@@ -42,8 +43,8 @@ systemctl status nginx.service
 查看一下是不是Nginx挂掉了，导致前端打不开了。这里引出的具体论点就是:
 
 - 实际工作的是二进制文件 Nginx
-- 控制对应 Nginx 的行为: 重启，挂掉后是否拉起的说明书，对应的才是 Nginx.service
-- 而Systemd就是参考Service这个说明书，来对实际的进程(运行中的二进制文件)进行操作的
+- Nginx.service实际上是一本说明书，说明了该如何控制 Nginx 这个二进制文件 
+- 而Systemd就是参考Nginx. Service这个说明书，来对实际的进程(运行中的二进制文件)进行操作的,比如说服务挂了要不要重启，生成的日志要打印到哪个目录下，加载的配置是在哪个路径
 
 ### 2.1 一个典型的Service是啥样的
 ```
@@ -74,7 +75,7 @@ WantedBy=multi-user.target  # 开机自启时属于哪个级别
 ## 一、常用的服务查看与管理命令
 
 ### 1. 列出当前已加载的服务
-查看系统中所有已加载的服务单元（包括是否运行、是否失败等）：
+查看系统中所有已加载的(Service)服务单元（包括是否运行、是否失败等）：
 ```bash
 systemctl list-units --type=service
 ```
@@ -83,7 +84,6 @@ systemctl list-units --type=service
 ```bash
 systemctl status nginx
 ```
-
 
 ### 3. 启动、停止、重启与设置开机自启
 ```bash
@@ -105,50 +105,12 @@ systemctl cat <service>
 
 ---
 
-## 二、Systemd 服务异常排查标准流程
-
-当某个服务启动失败时，可按照以下步骤进行分析与定位。
-
-### 步骤 1：查看服务状态
-```bash
-systemctl status <service>
-```
-查看失败原因概要（通常可看到最近的错误日志片段）。
-
-### 步骤 2：查看详细日志
-```bash
-journalctl -u <service> -b
-```
-说明：  
-`-u` 指定服务单元，`-b` 表示仅查看本次开机后的日志。
-
-
-### 步骤 3：检查服务配置文件
-```bash
-systemctl cat <service>
-```
-确认配置路径、依赖、启动命令等是否正确。
-
-### 步骤 4：尝试手动启动服务
-在命令行中直接运行 `ExecStart` 中的启动命令，观察是否有错误提示。  
-这一步可帮助判断问题出在 systemd 本身还是程序配置上。
-
-### 步骤 5：检查依赖与系统资源
-| 问题类型 | 检查方法 |
-|-----------|-----------|
-| 依赖服务是否正常 | `systemctl status <dependency>`（如 `dbus`、`network` 等） |
-| 端口被占用 | `ss -lntp` 或 `lsof -i` |
-| 权限 / SELinux 问题 | `getenforce`、`ls -Z` |
-| 内存或文件句柄不足 | `dmesg` 查看内核日志 |
-
----
-
 ## 5. Journalctl的常用命令
 在debian最新的操作系统里面，已经取消了/var/log/syslog文件，所有的service的log和系统内核的log都集中使用journalctl进行查看了
 
 以下是我日常工作中经常使用的命令，老实说journalctl查对应时间点的语法使用起来真的是太不够简洁了。
 
-1. 查看最近 1 小时的日志
+1. 查看 某一个服务 最近 1 小时的日志
 ```
 journalctl -u nginx --since "1 hour ago"
 ```
