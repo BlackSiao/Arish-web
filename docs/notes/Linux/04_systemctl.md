@@ -131,7 +131,7 @@ journalctl -u nginx -f
 journalctl -k | tail -n 50
 ```
 
-5. 查看上一次启动的日志
+5. 查看本次启动的日志
 ```
 journalctl -b 1 -n 100
 ```
