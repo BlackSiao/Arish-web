@@ -140,3 +140,13 @@ journalctl -b 1 -n 100
     - -b -1是上一次， -b -2
 以此类推，还是比较简洁明了的
 * -n 100: 只显示该周期的最后100行日志，对于"宕机"的设备而言，刚好可以体现系统宕机前最后的报错
+
+6. 排查硬件问题导致的异常宕机、重启
+
+```
+# 过滤内存、硬件和重启相关信息
+sudo journalctl -k -b -1 --no-pager | grep -Ei 'hardware error|mce|edac|ecc|memory|dimm|panic|oops|watchdog|reboot|reset'
+
+sudo journalctl -b -1 --no-pager | grep -Ei 'shutdown|power|reboot|signal 15|stopping system'
+
+```

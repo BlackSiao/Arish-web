@@ -244,6 +244,9 @@ docker inspect victoriametrics | grep -i compose
 ```
 # Args 记录了容器在启动时追加给入口程序（ENTRYPOINT）的具体参数列表
 docker inspect ba1a4310cb2f | grep -iA 15 "Args"
+
+# 查看容器的异常事件，如OOM
+docker events -f container = <container_id> 
 ```
 
 ## Compose文件的解析
