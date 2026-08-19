@@ -123,7 +123,7 @@ docker inspect [容器id]
 - **启动停止容器**：
 ```bash
 docker container start <containerID>
-docker container stop <containerID>  # 发送 SIGTERM，优雅关闭
+docker container stop <containerID>  # 发送 SIGTERM，优雅关闭， pause命令会让该容器不再占用CPU资源，但本来容器占用的内存资源不会释放
 docker container kill <containerID>  # 发送 SIGKILL，强制终止
 ```
 - `run` 创建新容器；`start` 复用现有。
@@ -131,6 +131,7 @@ docker container kill <containerID>  # 发送 SIGKILL，强制终止
 - **查看日志**：
 ```bash
 docker container logs <containerID>
+docker logs -f --tail 50 <容器名称或ID>  # 实时动态查看最新50条
 ```
 - 用于调试崩溃容器。
 
@@ -266,26 +267,56 @@ services:
   image: postgres:latest    # 容器使用的镜像
   container_name: postgres  # 容器名称
   network_mode: "host"      # 直接使用宿主机的网络，不走容器的bridge
+  command:                  # 用来覆盖镜像默认的启动入口命令或传递启动参数
+    - "--graphiteListenAddr=:2003"
+    - "--retentionPeriod=1200"
+    - "--opentsdbListenAddr=:4242"
   environment:
     POSTGRES_USER: postgres  # 改为默认管理用户
     POSTGRES_PASSWORD: postgres123
       #POSTGRES_DB: ttydash
-  POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=md5"
+  ports:
+    - "8428:8428"
   volumes:
-    - /data/postgresql/data:/var/lib/postgresql/data   # 数据库数据目录
+    - /data/postgresql/data:/var/lib/postgresql/data   # 宿主机的 ../data/ 目录挂载到 容器内xx/data 目录下
     - /data/postgresql/sql/00-create-user.sql:/docker-entrypoint-initdb.d/00-create-user.sql
     - /data/postgresql/sql/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
-    - /data/postgresql/sql/02-security.sql:/docker-entrypoint-initdb.d/02-security.sql
-    - /data/postgresql/sql/03-rbac.sql:/docker-entrypoint-initdb.d/03-rbac.sql
-    - /data/postgresql/sql/04-p1-enhancements.sql:/docker-entrypoint-initdb.d/04-p1-enhancements.sql
-    - /data/postgresql/sql/05-seed-data.sql:/docker-entrypoint-initdb.d/05-seed-data.sql
-  restart: unless-stopped  # 容器重启策略，除非检测到手动stop，否则都会自动拉起
-  healthcheck:             # 该容器运行状态的健康检测
+    restart: unless-stopped  # 容器重启策略，除非检测到手动stop，否则都会自动拉起
+  healthcheck:               # 该容器运行状态的健康检测
     test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
     start_period: 30s
 
+---
+在Docker Compose中，network 用于定义容器所属的虚拟网络。
+比如在一个compose文件中，所有的容器都可以在network里面指定一个自定义的网络 "vm-network", 这样容器之间都相当于接在了同一个二层网络下，可以直接互相通过容器名进行网络通信，比如(http://victoriametrics:8428)
+
+此外，network有下列几种类型:
+  - bridge（默认）：桥接网络。Docker 会在宿主机上创建一个虚拟网桥（如 docker0 或自定义网桥），容器通过该网桥进行隔离通信。
+  - host：主机网络。容器与宿主机共享网络命名空间（直接使用宿主机的 IP 和端口），性能最高，但失去网络隔离性。
+  - overlay：覆盖网络。用于 Docker Swarm 跨多台物理宿主机（集群）实现容器互通。
+  - macvlan / ipvlan：直接给容器分配宿主机物理网段内的真实 IP 地址，常用于需要容器直接暴露在物理局域网中的场景（如软路由、特定硬件对接）。
+  - none：禁用网络，容器只有 lo 回环网卡，完全隔离。
+
 
 ## 开发和运维工程师在docker上面的对接
+
+Docker 解决的核心问题是 “应用运行环境的标准化（Code + Environment)”，也就是“在我的机器上能跑，在你的机器上也一定能跑”。
+但是具体的配置文件，Volume卷的挂载点这些，往往都放在宿主机上，
+
+宿主机资源的依赖（鸡生蛋、蛋生鸡的问题）: Docker 可以帮你启动容器，但它无法自动在宿主机凭空生成你业务独有的配置文件。
+如果你需要挂载宿主机的目录或文件，这些文件在宿主机上必须先存在。这也就意味着，在现代商业模式中，往往会要求对宿主机也跑一下初始化脚本。
+
+如果是较小规模的私有化交付或边缘节点，确实会用到 Docker Compose，但交付物是一个压缩包，目录结构通常是：
+
+Plaintext
+my-app-deploy/
+├── install.sh                  <-- 关键：入口初始化脚本
+├── docker-compose.yml
+└── config/                     <-- 预先打包好的配置文件模板
+    ├── alertmanager.yml
+    └── scrape.yml
+部署流程：
+运维或客户只需运行 ./install.sh就行，这里面会包括运行docker所需要的依赖关系
 
 
 作为运维，不需要去懂开发具体的业务代码是怎么写的，但为了能为开发搭建环境并编写 docker-compose.yml，则必须向开发索要以下 4 份核心资料：
