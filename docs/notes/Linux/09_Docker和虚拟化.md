@@ -135,6 +135,18 @@ docker logs -f --tail 50 <容器名称或ID>  # 实时动态查看最新50条
 ```
 - 用于调试崩溃容器。
 
+
+- **清理现有容器**：
+
+docker rm -f $(docker ps -aq)   # 强制删除所有容器（无论运行状态
+
+docker network prune -f         # 清理残留的容器网络与未使用的卷
+docker volume prune -f
+
+systemctl restart docker        # 重启 Docker 服务（修复丢失的 iptables 规则链）
+```
+- 用于调试崩溃容器。
+
 ### 3.2 容器内部路径与隔离
 
 容器文件系统与主机隔离，容器的文件系统来自于镜像，而镜像里面的镜像使用的文件系统是自己From出来的。
