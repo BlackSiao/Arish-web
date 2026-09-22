@@ -115,7 +115,18 @@ ss -tan | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn | head -20
 ```bash
 ethtool eth0          # 网卡速率、双工模式、连接状态
 ethtool -i eth0       # 驱动信息（driver version firmware-version）
-ethtool -P eth0       # 查看网卡 MAC 地址
+```
+driver: mlx5_core
+version: 6.1.0-52-amd64
+firmware-version: 14.22.1002 (HUA0000000017)
+expansion-rom-version: 
+bus-info: 0000:af:00.0
+supports-statistics: yes
+supports-test: yes
+supports-eeprom-access: no
+supports-register-dump: no
+supports-priv-flags: yes
+```
 ```
 
 ---
@@ -125,6 +136,8 @@ ethtool -P eth0       # 查看网卡 MAC 地址
 ethtool -S eth0       # 网卡硬件计数器，包含rx_drop、tx_drop、CRC错误等 (这里显示的是全部的历史值)
 ethtool -S eth0 | grep -i drop    # 只看丢包
 ethtool -S eth0 | grep -i err     # 只看错误
+
+ethtool -S eno5np0 | grep -iE "FRR|DROP|ERROR|CRC" # 一般都是用这个来查看网卡错误的
 
 ```
 
