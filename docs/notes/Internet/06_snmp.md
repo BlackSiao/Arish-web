@@ -74,3 +74,12 @@ snmpwalk 是 SNMP（Simple Network Management Protocol）工具套件里的一�
 snmpwalk -v 2c -c public 192.168.1.1
 snmpwalk -v 2c -c public -On 172.16.20.27 #把MIB写成OID
 ```
+
+### 常见QA
+
+1. 团体名 Community String 是什么?
+
+在 SNMP v1 和 v2c 协议里，并没有设计复杂的用户名、非对称加密或 HMAC 签名机制。为了控制哪些机器可以读取或修改设备信息，协议设计了 Community String 这个概念：
+它就是一个普通的字符串（例如默认的 public、private，或者你们自定义的 xx;
+
+验证流程也很简单，当目标交换机的SNMP Agent收到数据包后，读取包头里面的 Community String, 如果这个字符串与交换机配置中的只读/读写团体名一致，且来源 IP 满足交换机的 ACL（访问控制列表）规则，Agent 就会执行查询并返回 GetResponse 数据包。

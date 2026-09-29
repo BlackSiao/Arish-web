@@ -118,4 +118,46 @@ VictoriaMetrics / Prometheus 可以在没有预定义的情况下，直接通过
 
 ---
 
+## snmp_exporter
 
+SNMP协议的关键在于外部的 SNMP采集器 和 运行在被管设备内部的SNMP Agent，数据库
+
+SNMP Exporter是Prometheus的官方Exporter项目之一，可以容器运行或者二进制运行Exporter通过snmp.yml配置文件，采集到目标机器的snmp数据后，将SNMP Agent的数据暴露在SNMP Exporter中，供Prometheus监控被管理设备的运行状态。
+
+snmp_exporter 被设计为被动触发式代理(Stateless Proxy);它本身不会再后台定时取抓取交换机数据，只有当 有人向它的 /snmp 接口发起HTTP GET请求时，它才会实时对目标交换机发起一次SNMP采集，并将结果转换为 PromQL 格式返回
+
+```流程图
+Prometheus / vmagent ---> HTTP GET ---> snmp_exporter ---> SNMP Get/Walk (UDP 161) ---> 网络设备 (如交换机)
+```
+
+```snmp.yml示例
+Linux:  
+  version: 2              ## SNMP版本为v2c  [v1,v2c,v3]
+  auth:
+    community: snmpexport ## 团体名称为 snmpexport
+  walk:                   ## 监控的Oid
+  - 1.3.6.1.4.1.2021.11
+  get:
+  - 1.3.6.1.2.1.1.3
+  metrics:                ## 监控的Oid对应的指标
+  - name: sysUpTime
+    oid: 1.3.6.1.2.1.1.3
+    type: gauge
+    help: The time (in hundredths of a second) since the network management portion
+      of the system was last re-initialized. - 1.3.6.1.2.1.1.3
+  - name: ssCpuUser
+    oid: 1.3.6.1.4.1.2021.11.9
+    type: gauge
+    help: The percentage of CPU time spent processing user-level code, calculated
+      over the last minute - 1.3.6.1.4.1.2021.11.9
+  - name: ssCpuSystem
+    oid: 1.3.6.1.4.1.2021.11.10
+    type: gauge
+    help: The percentage of CPU time spent processing system-level code, calculated
+      over the last minute - 1.3.6.1.4.1.2021.11.10
+  - name: ssCpuIdle
+    oid: 1.3.6.1.4.1.2021.11.11
+    type: gauge
+    help: The percentage of processor time spent idle, calculated over the last minute
+      - 1.3.6.1.4.1.2021.11.11
+```
