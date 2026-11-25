@@ -153,17 +153,34 @@ fping -agq xx//24
 - q(quiet)静默模式，会自动跳过错误的信息(不可达的IP)
 
 ## 6. iptables 命令
+iptables的概念挺复杂的，有四表五链，可以实现非常丰富的网络策略，但是逻辑一复杂起来，对使用者来说阅读对应策略就变得头痛, 我也只是懂个皮毛
 
 ```查看现在的iptables策略
 iptables -L -v -n
+iptables -S         # 将全部的filter表策略输出为可复用的策略组
+iptables -t nat -S 	# 将全部的nat表策略输出为可复用的策略组
 ```
 
-```ipset命令
-ipset list whitelist 
+```常用的命令
+iptables -L  [链名，如INPUT] -v -n --line-numbers       # 按序号列出某个链全部的策略
 
-# 添加网段的
-ipset add/del whitelist 10.0.0.0/24
+# 插到第 8 条「之前」 → 新规则成为第 8,原来的 8 变 9
+iptables -I [链名，如INPUT] 8 -p tcp -m tcp --dport 22 -m state --state NEW -j ACCEPT
+
+# 插到第 8 条「之后」 → 位置写 9,新规则成为第 9,原来的 9 变 10
+iptables -I [链名，如INPUT] 9 -p tcp -m tcp --dport 22 -m state --state NEW -j ACCEPT
+
 ```
+
+```查看链规则时
+	-P 	--policy 	 设置链的默认策略	只能是内置链
+	-N  --new-chain	 新建一条自定义链	
+	-A  --apend      在链尾追加一条规则 内置链或自定义链都行
+	-I  --insert	 插入规则
+	-L 	--line       列举规则
+```
+
+
 
 ## 7. ip命令
 在某些场景下(比如说单用户模式)，系统没有systemctl 、 service等命令，需要用最原始的 ip 命令去手动添加 IP和路由

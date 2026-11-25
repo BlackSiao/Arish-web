@@ -25,6 +25,10 @@ docker run hello-world
 
 从上述工作流，可以看出docker最重要的概念就是围绕: Image，Container, daemon展开的
 
+
+### 1.1 Docker的网桥
+配置好的docker容器和外界通信，一般是走桥接Bridge模式，因此会在服务器的网卡上挂一个docker0的虚拟网卡出来，宿主机的地址通常是 172.17.0.1/16，容器就运行在同网段下。 可以直接 ip a 来确认真实的网桥地址。
+
 ## 2. Dockerfile 和 镜像（Image） 和 compose文件
 
 ### 2.1 Dockerfile
